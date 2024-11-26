@@ -1,0 +1,164 @@
+[gd_scene load_steps=13 format=3 uid="uid://b4tuodkivgqih"]
+
+[ext_resource type="Script" path="res://scripts/game/game.gd" id="1_56np0"]
+[ext_resource type="PackedScene" uid="uid://85hb2yvst1t8" path="res://scenes/game/characters/ninja/ninja.tscn" id="2_0syh2"]
+[ext_resource type="Texture2D" uid="uid://vroorr6q28ej" path="res://assets/characters/ninja/profiles/blue_ninja.png" id="3_bbj7a"]
+[ext_resource type="Script" path="res://scripts/game/health_bar.gd" id="4_2rid8"]
+[ext_resource type="Texture2D" uid="uid://cwa48toufci10" path="res://assets/characters/ninja/profiles/red_ninja.png" id="4_pd35m"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ny2k3"]
+
+[sub_resource type="Sky" id="Sky_ddpjx"]
+sky_material = SubResource("ProceduralSkyMaterial_ny2k3")
+
+[sub_resource type="Environment" id="Environment_pu13x"]
+background_mode = 2
+sky = SubResource("Sky_ddpjx")
+ambient_light_energy = 12.35
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qybvo"]
+bg_color = Color(1, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0784314, 0.0784314, 0.0784314, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gn1ep"]
+bg_color = Color(0.494118, 0.662745, 0.25098, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5jti0"]
+bg_color = Color(1, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.0768358, 0.0768358, 0.0768358, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sgafg"]
+bg_color = Color(0.495509, 0.66459, 0.25029, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[node name="Game" type="Node3D" node_paths=PackedStringArray("fighter1", "fighter2")]
+script = ExtResource("1_56np0")
+fighter1 = NodePath("BlueNinja")
+fighter2 = NodePath("RedNinja")
+game_over_delay = 2.5
+
+[node name="BlueNinja" parent="." instance=ExtResource("2_0syh2")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -5, 0, 0)
+
+[node name="RedNinja" parent="." instance=ExtResource("2_0syh2")]
+transform = Transform3D(-2, 0, -1.74846e-07, 0, 2, 0, 1.74846e-07, 0, -2, 5, 0, 0)
+ninja_variant = 2
+punch_cooldown = 0.25
+kick_cooldown = 0.35
+player_type = 3
+
+[node name="Env" type="Node3D" parent="."]
+
+[node name="Floor" type="CSGBox3D" parent="Env"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -12)
+use_collision = true
+size = Vector3(16, 1, 30)
+
+[node name="LeftWall" type="CSGBox3D" parent="Env"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.5, 9, -12)
+use_collision = true
+size = Vector3(1, 20, 30)
+
+[node name="RightWall" type="CSGBox3D" parent="Env"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.5, 9, -12)
+use_collision = true
+size = Vector3(1, 20, 30)
+
+[node name="Camera3D" type="Camera3D" parent="Env"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.87743, 47.0153)
+current = true
+fov = 10.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Env"]
+environment = SubResource("Environment_pu13x")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Env/WorldEnvironment"]
+transform = Transform3D(0.856029, -0.515093, 0.0435047, 0.397194, 0.70928, 0.582373, -0.330833, -0.481248, 0.811757, 0, 12.0062, 17.8211)
+shadow_enabled = true
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Container" type="Control" parent="UI/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HBoxContainer/Container"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 0
+
+[node name="ColorRect" type="TextureRect" parent="UI/HBoxContainer/Container/VBoxContainer"]
+custom_minimum_size = Vector2(100, 85)
+layout_mode = 2
+size_flags_horizontal = 0
+texture = ExtResource("3_bbj7a")
+expand_mode = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="UI/HBoxContainer/Container/VBoxContainer" node_paths=PackedStringArray("fighter")]
+custom_minimum_size = Vector2(350, 10)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_qybvo")
+theme_override_styles/fill = SubResource("StyleBoxFlat_gn1ep")
+value = 100.0
+show_percentage = false
+script = ExtResource("4_2rid8")
+fighter = NodePath("../../../../../BlueNinja")
+
+[node name="Container2" type="Control" parent="UI/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/HBoxContainer/Container2"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -70.0
+offset_bottom = 70.0
+grow_horizontal = 0
+theme_override_constants/separation = 0
+
+[node name="ColorRect2" type="TextureRect" parent="UI/HBoxContainer/Container2/VBoxContainer"]
+custom_minimum_size = Vector2(100, 85)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+texture = ExtResource("4_pd35m")
+expand_mode = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="UI/HBoxContainer/Container2/VBoxContainer" node_paths=PackedStringArray("fighter")]
+custom_minimum_size = Vector2(350, 10)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_5jti0")
+theme_override_styles/fill = SubResource("StyleBoxFlat_sgafg")
+value = 100.0
+fill_mode = 1
+show_percentage = false
+script = ExtResource("4_2rid8")
+fighter = NodePath("../../../../../RedNinja")
