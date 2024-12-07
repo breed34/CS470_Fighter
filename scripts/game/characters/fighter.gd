@@ -30,6 +30,8 @@ func _ready() -> void:
 			player = AIPlayer.with_strat(TableStrategy.new())
 		Enums.PlayerType.SMP_OFF_DEF_AI:
 			player = AIPlayer.with_strat(SimpleOffDefStrategy.new())
+		Enums.PlayerType.MCTS_AI:
+			player = AIPlayer.with_strat(MCTSStrategy.new())
 		_:
 			print("Unexpected PlayerType: ", player_type)
 			player = Player.new()

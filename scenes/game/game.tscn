@@ -56,13 +56,14 @@ game_over_delay = 2.5
 
 [node name="BlueNinja" parent="." instance=ExtResource("2_0syh2")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -5, 0, 0)
+player_type = 3
 
 [node name="RedNinja" parent="." instance=ExtResource("2_0syh2")]
 transform = Transform3D(-2, 0, -1.74846e-07, 0, 2, 0, 1.74846e-07, 0, -2, 5, 0, 0)
 ninja_variant = 2
 punch_cooldown = 0.25
 kick_cooldown = 0.35
-player_type = 3
+player_type = 4
 
 [node name="Env" type="Node3D" parent="."]
 
