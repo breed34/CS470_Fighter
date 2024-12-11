@@ -2,7 +2,7 @@ class_name SimpleOffDefStrategy
 extends Strategy
 
 
-const CORRECT_PROB = 0.9
+const CORRECT_PROB = 0.6
 
 var _damage_threshold = 1.0/4.0
 var _last_health

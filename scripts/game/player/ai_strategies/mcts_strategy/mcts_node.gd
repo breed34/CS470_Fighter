@@ -17,6 +17,9 @@ static func inst(
 
 	return n
 
+func with_applied(action: String):
+	return self._state_actions[action].call()
+
 func copy() -> MCTSNode:
 	var n = MCTSNode.new()
 	n.action = action
@@ -41,6 +44,14 @@ var parent: MCTSNode
 var children: Array[MCTSNode]
 var num_visits: int = 0
 var tot_reward: float = 0
+
+var _state_actions: Dictionary = {
+	"moving_left": _run_left,
+	"moving_right": _run_right,
+	"kicking": _kick,
+	"punching": _punch,
+	"stationary": _nothing
+}
 
 var _untried_actions: Dictionary = {
 	"run_left": _run_left,
@@ -72,6 +83,16 @@ func eval():
 	#return  f_h - o_h - k * (absf(f_h - o_h) / diff)
 	return -o_h
 
+func print_dist():
+	print("Distribution:")
+	for child in children:
+		print("{a}: n = {n} r = {r}".format({
+			"a": child.action,
+			"n": child.num_visits,
+			"r": child.tot_reward / child.num_visits}))
+
+	pass
+
 func max_visited_child() -> MCTSNode:
 	var curr_max = 0
 	var max_child = null
@@ -86,7 +107,7 @@ func _select_child_fighter() -> MCTSNode:
 	var curr_max = -INF
 	var max_child = null
 	for child in children:
-		const c = 0.25
+		const c = 0.1
 		var R = child.tot_reward
 		var n = child.num_visits
 		var N = num_visits
@@ -102,7 +123,7 @@ func _select_child_opponent() -> MCTSNode:
 	var curr_min = INF
 	var min_child = null
 	for child in children:
-		const c = 0.25
+		const c = 0.1
 		var R = child.tot_reward
 		var n = child.num_visits
 		var N = num_visits
@@ -132,7 +153,8 @@ func _run_left() -> MCTSNode:
 
 	var proposed_x = state_to_update.position.x \
 		- SIMULATION_FRAMES \
-		* state_to_update.horiz_velocity
+		* state_to_update.horiz_velocity \
+		/ 60.0
 
 	state_to_update.rotation_y = PI
 	state_to_update.position.x = _resolve_x(
@@ -160,7 +182,8 @@ func _run_right() -> MCTSNode:
 
 	var proposed_x = state_to_update.position.x \
 		+ SIMULATION_FRAMES \
-		* state_to_update.horiz_velocity
+		* state_to_update.horiz_velocity \
+		/ 60.0
 
 	state_to_update.rotation_y = 0
 	state_to_update.position.x = _resolve_x(
@@ -238,26 +261,24 @@ func _facing_opp(f_state: FighterState, o_state: FighterState) -> bool:
 		if o_state.position.x < f_state.position.x \
 		else "right"
 
-	var facing = "left" if f_state.rotation_y == PI else "right"
+	var facing = "left" if abs(abs(f_state.rotation_y) - PI) < 0.001 else "right"
 	return facing == dir_to_opp
 
 func _resolve_x(prop_x: float, opponent_x: float, rotation_y: float):
 	var x = prop_x
-	const P_W = 16.0  # platform width
-	const F_R = 0.379  # fighter radius
-	const MAX_L = -P_W / 2.0 + F_R
-	const MAX_R = P_W / 2.0 - F_R
-	var move_dir = "left" if rotation_y == PI else "right"
-	var opp_l = opponent_x - F_R
-	var opp_r = opponent_x + F_R
+	var MAX_L = -7.24
+	var MAX_R = 7.24
+	var move_dir = "left" if abs(abs(rotation_y) - PI) < 0.001 else "right"
+	var opp_l = opponent_x - 1.52
+	var opp_r = opponent_x + 1.52
 
 	if x < MAX_L:
 		x = MAX_L
 	elif x > MAX_R:
 		x = MAX_R
-	elif opp_l < x < opp_r and move_dir == "left":
-		x = opp_r + F_R
-	elif opp_l < x < opp_r and move_dir == "right":
-		x = opp_l - F_R
+	elif opp_l < x and x < opp_r and move_dir == "left":
+		x = opp_r
+	elif opp_l < x and x < opp_r and move_dir == "right":
+		x = opp_l
 
 	return x

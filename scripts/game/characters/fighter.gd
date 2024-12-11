@@ -21,6 +21,7 @@ var player: Player
 var _attacks: Array[Attack]
 var _attack_dict: Dictionary
 var _can_attack: bool = true
+var _attack_timer: SceneTreeTimer
 
 func _ready() -> void:
 	match player_type:
@@ -31,7 +32,7 @@ func _ready() -> void:
 		Enums.PlayerType.SMP_OFF_DEF_AI:
 			player = AIPlayer.with_strat(SimpleOffDefStrategy.new())
 		Enums.PlayerType.MCTS_AI:
-			player = AIPlayer.with_strat(MCTSStrategy.new())
+			player = AIPlayer.with_strat(MCTSStrategy2.new())
 		_:
 			print("Unexpected PlayerType: ", player_type)
 			player = Player.new()
@@ -68,8 +69,8 @@ func attack(attack_name: String) -> void:
 	for enemy in enemies:
 		enemy.take_damage(attack.damage)
 
-	get_tree().create_timer(attack.cooldown) \
-		.timeout.connect(func (): _can_attack = true)
+	_attack_timer = get_tree().create_timer(attack.cooldown)
+	_attack_timer.timeout.connect(func (): _can_attack = true)
 
 func take_damage(damage: float) -> void:
 	_health = _health - damage if damage < _health else 0
@@ -77,6 +78,8 @@ func take_damage(damage: float) -> void:
 func get_health() -> float:
 	return _health
 
+func get_attack_cooldown_left_frames() -> int:
+	return roundi(_attack_timer.time_left * 60) if _attack_timer else 0
 
 func get_opponent() -> Fighter:
 	return (get_parent() as Game).get_fighters() \

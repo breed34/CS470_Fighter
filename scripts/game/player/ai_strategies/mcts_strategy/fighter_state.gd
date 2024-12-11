@@ -4,7 +4,7 @@ class_name FighterState
 static func from_fighter(fighter: Fighter) -> FighterState:
 	var s = FighterState.new()
 	s.position = fighter.global_position
-	s.rotation_y = fighter.rotation.y
+	s.rotation_y = abs(fighter.rotation.y)
 	s.can_attack = fighter.can_attack()
 	s.health = fighter.get_health()
 	s.horiz_velocity = fighter.horiz_velocity

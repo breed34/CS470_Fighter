@@ -11,7 +11,7 @@ static func with_strat(strat: Strategy) -> AIPlayer:
 	var p = AIPlayer.new()
 	p._strategy = strat
 	if strat is MCTSStrategy:
-		p._action_cooldown = (20.0 * 1000.0 / 60.0) / 1000.0   # Approxiamately 20 frames
+		p._action_cooldown = 0.3333  # Approxiamately 20 frames
 
 	p.add_child(strat)
 	return p

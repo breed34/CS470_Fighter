@@ -1,4 +1,4 @@
-class_name MCTSStrategy
+class_name MCTSStrategy2
 extends Strategy
 
 var _thread: Thread
@@ -12,46 +12,45 @@ func _exit_tree():
 	_thread.wait_to_finish()
 
 func decide(fighter: Fighter, opponent: Fighter) -> Array[String]:
-	var res_root: MCTSNode = null
+	var res_root: MCTSNode2 = null
 	var next_action: String = "stationary"
 	if _thread.is_started():
 		_exit_thread = true
 		res_root = _thread.wait_to_finish()
+		next_action = res_root.best_action()
 		res_root.print_dist()
-		next_action = res_root.max_visited_child().action
 
 	_exit_thread = false
-	_thread.start(decide_async.bind(
-		MCTSNode.inst(
-			"fighter",
-			"",
-			FighterState.from_fighter(fighter),
-			FighterState.from_fighter(opponent),
-			null)
-			.with_applied(next_action)
-			.with_applied("stationary")))
+	_thread.start(
+		decide_async.bind(
+			MCTSNode2.root_inst(
+				ActionSimulator.simulate_action(
+					next_action,
+					FighterState2.from_fighters(fighter, opponent)))))
 
 	if res_root != null:
 		return [next_action]
 	else:
 		return ["stationary"]
 
-func decide_async(root: MCTSNode):
+func decide_async(root: MCTSNode2):
 	var depth = 0
 	var curr_node = root
 	while true:
-		if not curr_node.has_untried_actions():
-			curr_node = curr_node.select_child()
+		if curr_node.untried_actions.is_empty():
+			curr_node = curr_node.select()
 			continue;
 		else:
-			var child = curr_node.pick_untried_child()
-			var val = child.eval()
+			var action = curr_node.untried_actions.pop_front()
+			var child = curr_node.expand(action)
 			curr_node.children.push_back(child)
+
+			var r = child.r
 			curr_node = child
 			var curr_depth = 0
 			while curr_node != null:
-				curr_node.tot_reward += val
-				curr_node.num_visits += 1
+				curr_node.r += r
+				curr_node.n += 1
 				curr_node = curr_node.parent
 				curr_depth += 1
 
@@ -61,4 +60,4 @@ func decide_async(root: MCTSNode):
 
 		if _exit_thread:
 			print("Depth: {d}".format({"d": depth}))
-			return root.copy()
+			return root
